@@ -87,7 +87,7 @@
   "Type" : "Fully Connected Layer",
   "Input Shape" : [7, 7, 64],
   "Output Shape" : [128],
-  "Number Of Neurons" 128: , 
+  "Number Of Neurons" : 128 , 
   "Activation Function" : "Leaky ReLU"
 }
 ~~~
