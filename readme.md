@@ -113,10 +113,10 @@
 **신경망 층 구성 및 model 구성 클래스** <br>
 **Neuron Layer & Model Composition Class**
 ## test
-**test용 코드들**
+**test용 코드들** <br>
 **Code For Test**
 ## utils
-**수학적 계산 도구들**
+**수학적 계산 도구들** <br>
 **Math Tools**
 ## others
 
