@@ -30,10 +30,10 @@
 ~~~ JSON
 {
   "Type" : "Convolutional Layer",
-  "Input Shape" : (28, 28, 1),
-  "Output Shape" : (28, 28, 32),
+  "Input Shape" : [28, 28, 1],
+  "Output Shape" : [28, 28, 32],
   "Number Of Filters" : 32,
-  "Filter Size" : (3, 3),
+  "Filter Size" : [3, 3],
   "Stride" : 1, 
   "Padding" : "same",
   "Activation Function" : "Leaky ReLU"
@@ -44,10 +44,10 @@
 ~~~ JSON
 {
   "Type" : "Pooling Layer",
-  "Input Shape" : (28, 28, 32),
-  "Output Shape" : (14, 14, 32),
+  "Input Shape" : [28, 28, 32],
+  "Output Shape" : [14, 14, 32],
   "Pooling Type" : "Max Pooling",
-  "Pooling Size" :(2, 2),
+  "Pooling Size" : [2, 2],
   "Stride" : 2
 }
 ~~~
@@ -57,10 +57,10 @@
 ~~~ JSON
 {
   "Type" : "Convolutional Layer",
-  "Input Shape" : (14, 14, 32),
-  "Output Shape" : (14, 14, 64),
+  "Input Shape" : [14, 14, 32],
+  "Output Shape" : [14, 14, 64],
   "Number Of Filters" : 64,
-  "Filter Size" : (3, 3),
+  "Filter Size" : [3, 3],
   "Stride" : 1, 
   "Padding" : "same",
   "Activation Function" : "Leaky ReLU"
@@ -72,10 +72,10 @@
 ~~~ JSON
 {
   "Type" : "Pooling Layer",
-  "Input Shape" : (14, 14, 64),
-  "Output Shape" : (7, 7, 64),
+  "Input Shape" : [14, 14, 64],
+  "Output Shape" : [7, 7, 64],
   "Pooling Type" : "Max Pooling",
-  "Pooling Size" :(2, 2),
+  "Pooling Size" :[2, 2],
   "Stride" : 2
 }
 ~~~
@@ -85,8 +85,8 @@
 ~~~ JSON
 {
   "Type" : "Fully Connected Layer",
-  "Input Shape" : (7, 7, 64),
-  "Output Shape" : (128),
+  "Input Shape" : [7, 7, 64],
+  "Output Shape" : [128],
   "Number Of Neurons" 128: , 
   "Activation Function" : "Leaky ReLU"
 }
@@ -97,9 +97,9 @@
 ~~~ JSON
 {
   "Type" : "Output Layer",
-  "Input Shape" : (128),
+  "Input Shape" : [128],
   "Output Shape" : 10,
-  "Number Of Neurons" 10: , 
+  "Number Of Neurons" : 10, 
   "Activation Function" : "softmax"
 }
 ~~~
