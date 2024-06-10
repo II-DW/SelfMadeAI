@@ -52,9 +52,9 @@ def subtractList (A:list, B:list) -> list :
         return result
 
 
-def subtractList (A:list, B:list) -> list :
+def AddList (A:list, B:list) -> list :
     '''
-    두 2차원 행렬을 입력받았을 때, 뺄셈을 계산하는 함수
+    두 2차원 행렬을 입력받았을 때, 덧셈을 계산하는 함수
     크기는 같아야함.
     '''
     result = []

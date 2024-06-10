@@ -2,21 +2,21 @@ from utils.mathtool import exp, box_muller, sqrt
 from utils.listutils import zeros, makeListSum, subtractList, im2col, Matrix_Multiplication, AddList
 
 class Conv2d  :
-    def __init__ (self, feature, input_size:tuple, filter_size:int, stride) :
+    def __init__ (self, feature, input_size:tuple, filter_size:tuple, stride) :
         self.input_size = input_size
         self.feature = feature
-        self.kernal_size = (filter_size, filter_size)
-        self.kernal = self.Make_kernal(filter_size)
+        self.kernal_size = (filter_size[2], filter_size[3])
+        self.kernal = self.he_initialization_conv(filter_size)
         self.stride = stride
     
-    def he_initialization_conv(filter_shape):
+    def he_initialization_conv(self, filter_shape):
         """
         Box-Muller 변환을 사용하여 He 초기화를 수행합니다.
 
         filter_shape (tuple): 필터의 형태 (출력 채널 수, 입력 채널 수, 필터 높이, 필터 너비).
 
         """
-        fan_in = filter_shape[1] * filter_shape[2] *filter_shape[3]  # 입력 채널 수 * 필터 높이 * 필터 너비
+        fan_in = filter_shape[0]* filter_shape[2] *filter_shape[3]  # 입력 채널 수 * 필터 높이 * 필터 너비
         std_dev = sqrt(2.0 / fan_in)
         
         filters  = []
@@ -106,25 +106,27 @@ class FCN2d :
         """
         Box-Muller 변환을 사용하여 He 초기화를 수행합니다.
         """
-        n_in = self.shape[0] * self.shape[1] // self.shape[-1]  # 입력 뉴런의 수
+        n_in=1
+        for n in self.shape :
+            n_in *= n
+        
+        n_out = self.output_size
+
         std_dev = sqrt(2.0 / n_in)
         
-        weights = zeros(self.shape[0], self.shape[1])
-        
-        num_elements = self.shape[0] * self.shape[1]
+        weights = zeros(n_out, n_in)
+        num_elements = n_in * n_out
         
         i = 0
-        for m in range (self.shape[0]) :
-            for n in range (self.shape[1]) :
+        for m in range(n_in) :
+            for n in range (n_out) :
+                Z0, Z1 = box_muller(m*n)
                 if i < num_elements:
-                    Z0, Z1 = box_muller(m*n)
                     weights[m][n] = Z0 * std_dev
-                    i+=1
+                    i += 1
                 if i < num_elements:
-                    Z0, Z1 = box_muller(m*n)
                     weights[m][n] = Z1 * std_dev
-                    i+=1
-        
+                    i += 1
         return weights
     
     def flatten(self, X) :
@@ -140,48 +142,39 @@ class FCN2d :
         flattened_X = self.flatten(X)
         return AddList(Matrix_Multiplication(flattened_X, self.weights), self.bias)
     
-class FCN1 :
-    def __init__(self, input_shape:tuple, output_shape:int) :
-        self.input_size = input_shape[0] * input_shape[1] * input_shape[2] * input_shape[3]
-        self.input_shape = input_shape
+class FCN1d:
+    def __init__(self, input_shape:int, output_shape:int) :
+        self.input_size = input_shape
         self.output_size = output_shape
         self.shape = (self.input_size, output_shape)
         self.weights = self.he_initialization()
+        self.bias = zeros(self.input_size, self.output_size)
 
     def he_initialization(self):
         """
         Box-Muller 변환을 사용하여 He 초기화를 수행합니다.
         """
-        n_in = self.shape[0] * self.shape[1] // self.shape[-1]  # 입력 뉴런의 수
+        n_in= self.input_size
+
+        n_out = self.output_size
+
         std_dev = sqrt(2.0 / n_in)
+        weights = zeros(n_in, n_out)
         
-        weights = zeros(self.shape[0], self.shape[1])
-        
-        num_elements = self.shape[0] * self.shape[1]
+        num_elements = n_in * n_out
         
         i = 0
-        for m in range (self.shape[0]) :
-            for n in range (self.shape[1]) :
+        for m in range (n_in) :
+            for n in range (n_out) :
+                Z0, Z1 = box_muller(m*n)
                 if i < num_elements:
-                    Z0, Z1 = box_muller(m*n)
                     weights[m][n] = Z0 * std_dev
                     i+=1
                 if i < num_elements:
-                    Z0, Z1 = box_muller(m*n)
                     weights[m][n] = Z1 * std_dev
                     i+=1
         
         return weights
-    
-    def flatten(self, X) :
-        result = []
-        for m in self.input_shape[0] :
-            for n in self.input_shape[1] :
-                for i in self.input_shape[2] :
-                    for j in self.input_shape[3] :
-                        result.append(X[m][n][i][j])
-        return result
 
     def forward(self, X) :
-        flattened_X = self.flatten(X)
-        return Matrix_Multiplication(flattened_X, self.weights)
+        return AddList(Matrix_Multiplication(X, self.weights), self.bias)

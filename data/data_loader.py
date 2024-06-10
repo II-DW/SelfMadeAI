@@ -29,6 +29,8 @@ class dataPreprocess :
                 y.append(x)
                 
             data.append(y)
+            if n % 10000 == 0 :
+                print(file_name, "Loading...", n)
             n+=1
 
         f.close()

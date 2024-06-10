@@ -5,7 +5,7 @@ def factorial (n:int) -> int:
     '''
     팩토리얼을 값을 반환하는 함수입니다.
     '''
-    if n.type != int or n < 0 or n == 0 :
+    if n < 0 or n == 0 :
         return 1
     
     result = 1
@@ -52,7 +52,7 @@ def ln(x, terms=100):
     """
     테일러 급수를 사용하여 자연 로그를 계산하는 함수.
     """
-    if x <= 0:
+    if x <= -1:
         raise ValueError("양수를 입력해주세요.")
 
     # x를 1보다 크게 맞추기 위해 조정
@@ -118,7 +118,7 @@ def box_muller(n:int):
     U2 = moduler(simple_random(n), 10000)
     
     Z0 = sqrt(-2 * ln(U1)) * cos(2 * pi * U2)
-    Z1 = sqrt(-2 * ln(U1)) * sin(2 * pi * U2)
+    Z1 = sqrt(-2 * ln(U2)) * sin(2 * pi * U2)
     
     return Z0, Z1
 
