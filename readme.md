@@ -131,3 +131,55 @@
 ## Reference & Data
 [MNIST in CSV - kaggle](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv)
 
+## Used Math Principle
+
+
+### 테일러 급수
+
+$$
+e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}
+$$
+
+$$
+\sin(x) = \sum_{n=0}^{\infty} (-1)^n \frac{x^{2n+1}}{(2n+1)!}
+$$
+
+$$
+\cos(x) = \sum_{n=0}^{\infty} (-1)^n \frac{x^{2n}}{(2n)!}
+$$
+
+
+
+$$
+\ln(1 + x) = \sum_{n=1}^{\infty} (-1)^{n+1} \frac{x^n}{n}
+$$
+
+
+### 오차역전파
+
+
+
+$$
+\frac{\partial L}{\partial A} = \frac{\partial L}{\partial C} \cdot B^T
+$$
+
+$$
+\frac{\partial L}{\partial B} = A^T \cdot \frac{\partial L}{\partial C}
+$$
+
+### Box-Muller 변환
+
+$$
+Z_0 = \sqrt{-2 \ln U_1} \cdot \cos(2\pi U_2)
+$$
+
+$$
+Z_1 = \sqrt{-2 \ln U_1} \cdot \sin(2\pi U_2)
+$$
+
+### 뉴턴-랩슨 방법
+
+$$
+x_{n+1} = \frac{1}{2} \left( x_n + \frac{S}{x_n} \right)
+$$
+
