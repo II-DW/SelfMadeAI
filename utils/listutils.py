@@ -5,7 +5,7 @@ def Matrix_Multiplication(A:list, B:list) -> list:
     입력 행렬이 행렬 곱을 할 수 있는 크기여야 합니다. ex) (a, b)와 (b, c) 크기의 행렬
 
     A : 2차원 리스트 (크기 (a, b)) 2, 4
-    B : 2차원 리스트 (크기 (b, c)) 4, 9
+    B : 2차원 리스트 (크기 (c, b)) 9, 4
     반환값 : 2차원 리스트 (크기 (a, c))
     '''
 
@@ -13,21 +13,24 @@ def Matrix_Multiplication(A:list, B:list) -> list:
 
     a = len(A)
     b = len(A[0])
-    b1 = len(B)
-    c = len(B[0])
+    c = len(B)
+    b1 = len(B[0])
 
     if b == b1 :
         pass
     else :
         print("입력 행렬의 크기가 행렬곱을 하기에 적당하지 않습니다.")
+        print(a, b, b1, c)
         return ["error"]
     
     for i in range (a) :
         L = []
-        for j in range (c) :
+        for j in range (c) : # 1, 9, 9, 676
             s_num = 0
             for k in range (b):
-                s_num += A[i][k] * B[k][j]
+                A[i][k]
+                B[j][k]
+                s_num += A[i][k] * B[j][k]
             L.append(s_num)
         result.append(L)
 
@@ -104,10 +107,17 @@ def return_Xc(X:list, H:int, W:int, k1:int, k2:int) -> list:
   X를 입력했을 때, X_c를 반환하는 함수
   '''
   result = []
-  for n in range ((H - k1 + 1)) :
-    for m in range ((W - k2 + 1)) :
-      L = [X[n][m], X[n][m+1], X[n+1][m], X[n+1][m+1]]
-      result.append(L)
+
+  for n in range (H - k1 + 1) :
+      for m in range (W - k2 + 1) :
+          L = []
+          for l in X[m:m+k2] :
+              for e in l[n:n+k1] :
+                  L.append(e)
+          result.append(L)
+  
+      
+      
   return result
      
 
@@ -120,7 +130,7 @@ def return_Wc(W:list, k1:int, k2:int) :
   for i in range(k2):
     for j in range(k1):
       result.append(W[i][j])
-  return result
+  return [result]
 
 
 def im2col (X, w, H, W, k1, k2) :
@@ -129,7 +139,7 @@ def im2col (X, w, H, W, k1, k2) :
   '''
   Xc = return_Xc(X, H, W, k1, k2)
   Wc = return_Wc(w, k1, k2)
-  producted_array = Matrix_Multiplication(Xc, Wc)
+  producted_array = Matrix_Multiplication(Wc, Xc)
   return producted_array
 
             

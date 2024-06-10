@@ -9,19 +9,18 @@ epochs = 1000
 learning_rate = 0.0001
 
 Layer_List = []
-Layer_List.append(Conv2d(32, (1, 1, 28, 28), (32, 1, 3, 3), 1))
+Layer_List.append(Conv2d(16, (1, 1, 28, 28), (16, 1, 3, 3), 1))
 print("Done Layer...", 1)
-Layer_List.append(MaxPool2d((1, 32, 14, 14), (2, 2),2))
+Layer_List.append(MaxPool2d((16, 1, 26, 26), (2, 2),2))
 print("Done Layer...", 2)
-Layer_List.append(Conv2d(64, (1, 32, 14, 14), (64, 32, 3, 3), 1))
+Layer_List.append(Conv2d(32, (16, 1, 12, 12), (32, 16, 3, 3), 1))
 print("Done Layer...", 3)
-Layer_List.append(MaxPool2d((1, 64, 14, 14), (2, 2),2))
+Layer_List.append(MaxPool2d((32, 1, 10, 10), (2, 2),2))
 print("Done Layer...", 4)
-Layer_List.append(FCN2d((1, 64, 7, 7), 32))    
+Layer_List.append(FCN2d((32, 1, 4, 4), 32))    
 print("Done Layer...", 5)
-Layer_List.append(FCN1d(128,10))
+Layer_List.append(FCN1d(32, 10))    
 print("Done Layer...", 6)
-
 print("Step 2. Done Layer Setting")
 
 for epoch in range(epochs) :

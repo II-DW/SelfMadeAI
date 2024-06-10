@@ -1,11 +1,11 @@
-from utils.mathtool import exp, box_muller, sqrt
-from utils.listutils import zeros, makeListSum, subtractList, im2col, Matrix_Multiplication, AddList
+from utils.mathtool import box_muller, sqrt
+from utils.listutils import zeros, subtractList, im2col, Matrix_Multiplication, AddList
 
 class Conv2d  :
     def __init__ (self, feature, input_size:tuple, filter_size:tuple, stride) :
         self.input_size = input_size
         self.feature = feature
-        self.kernal_size = (filter_size[2], filter_size[3])
+        self.kernal_size = (filter_size[2], filter_size[3], filter_size[1])
         self.kernal = self.he_initialization_conv(filter_size)
         self.stride = stride
     
@@ -48,8 +48,30 @@ class Conv2d  :
     def update_kernal(self, amountL:list) -> list :
         self.kernal = subtractList(self.kernal, amountL) 
     
-    def forward(self, X) :
-        return im2col(X, self.kernal, self.input_size[0], self.input_size[1], self.kernal_size[0], self.kernal_size[1])
+    def resize_output (self, X, x, y) :
+        result = []
+        idx = 0
+        for _ in range (y) :
+            l = []
+            for _ in range (x) :
+                try :
+                    l.append(X[idx])
+                except IndexError :
+                    print(idx)
+                    quit()
+                idx+=1
+            result.append(l)
+        return result
+    
+    def forward(self, X) : #(1, 1, 28, 28), (16, 1, 3, 3) # (16, 1, 13, 13), (32, 16, 3, 3) # channel은 언제나 1일것이라고 가정함
+        result = []
+        for _ in range (self.feature) :
+            for m in range (self.input_size[1]) :
+                l = []
+                for _ in range (self.input_size[1]) :
+                    l.append(self.resize_output(im2col(X[m][0], self.kernal[m][0], self.input_size[2], self.input_size[3], self.kernal_size[0], self.kernal_size[1])[0], self.input_size[2]-self.kernal_size[0]+1,self.input_size[2]-self.kernal_size[1]+1))
+                result.append(l)
+        return result
     
     
 class MaxPool2d :
@@ -69,10 +91,10 @@ class MaxPool2d :
             for n in range(self.input_shape[1]) :
                 L_1 = []
                 L_1_idx = []
-                for i in range(0,self.input_shape[2]-self.pooling_size[0]+1,self.stride) :
+                for i in range(0,self.input_shape[2]-self.pooling_size[0],self.stride) :
                     L_2=[]
                     L_2_idx = []
-                    for j in range(0, self.input_shape[3]-self.pooling_size[1]+1, self.stride) :
+                    for j in range(0, self.input_shape[3]-self.pooling_size[1], self.stride) :
 
                         max_num = X[m][n][i][j]
                         max_idx = (m, n, i, j)
@@ -107,19 +129,19 @@ class FCN2d :
         Box-Muller 변환을 사용하여 He 초기화를 수행합니다.
         """
         n_in=1
-        for n in self.shape :
+        for n in self.input_shape :
             n_in *= n
         
         n_out = self.output_size
 
         std_dev = sqrt(2.0 / n_in)
         
-        weights = zeros(n_out, n_in)
+        weights = zeros(n_in, n_out)
         num_elements = n_in * n_out
-        
+
         i = 0
-        for m in range(n_in) :
-            for n in range (n_out) :
+        for m in range(n_out) :
+            for n in range (n_in) :
                 Z0, Z1 = box_muller(m*n)
                 if i < num_elements:
                     weights[m][n] = Z0 * std_dev
@@ -131,12 +153,12 @@ class FCN2d :
     
     def flatten(self, X) :
         result = []
-        for m in self.input_shape[0] :
-            for n in self.input_shape[1] :
-                for i in self.input_shape[2] :
-                    for j in self.input_shape[3] :
+        for m in range(self.input_shape[0]) :
+            for n in range(self.input_shape[1]) :
+                for i in range(self.input_shape[2]) :
+                    for j in range(self.input_shape[3]) :
                         result.append(X[m][n][i][j])
-        return result
+        return [result]
 
     def forward(self, X) :
         flattened_X = self.flatten(X)
@@ -164,8 +186,8 @@ class FCN1d:
         num_elements = n_in * n_out
         
         i = 0
-        for m in range (n_in) :
-            for n in range (n_out) :
+        for m in range (n_out) :
+            for n in range (n_in) :
                 Z0, Z1 = box_muller(m*n)
                 if i < num_elements:
                     weights[m][n] = Z0 * std_dev
