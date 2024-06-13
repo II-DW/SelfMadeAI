@@ -153,3 +153,15 @@ def dotproduct(scalar:float, matrix:list) -> list :
         for j in range(len(matrix[0])) :
             result[i][j] = scalar*matrix[i][j]
     return result
+
+def dotproduct4d(scalar:float, matrix:list) -> list :
+    '''
+    행렬 x 스칼라 곱
+    '''
+    result = matrix
+    for i in range(len(matrix)) :
+        for j in range(len(matrix[0])) :
+            for k in range(len(matrix[0][0])) :
+                for m in range(len(matrix[0][0][0])) :
+                    result[i][j][k][m] = scalar*matrix[i][j][k][m]
+    return result

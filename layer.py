@@ -79,6 +79,59 @@ class Conv2d  :
                     l.append(self.resize_output(im2col(X[m][0], self.kernal[m][0], self.input_size[2], self.input_size[3], self.kernal_size[0], self.kernal_size[1])[0], self.input_size[2]-self.kernal_size[0]+1,self.input_size[2]-self.kernal_size[1]+1))
                 result.append(l)
         return result
+        
+    def updateW (self, dY, X, lr) :
+        dW = [[[[0 for _ in range(self.kernal_size[0])] for _ in range(self.kernal_size[1])] for _ in range(len(X))] for _ in range(len(dY))]
+        
+        # 각 출력 채널 k에 대해
+        for k in range(len(dY)):
+            # 각 입력 채널 c에 대해
+            for c in range(len(X)):
+                # dY와 X에 대해 연산을 수행하고 행렬곱을 수행
+                for i in range(len(dY[0][0])):  # 출력 높이
+                    for j in range(len(dY[0][0][0])):  # 출력 너비
+                        for m in range(self.kernal_size[0]):
+                            for n in range(self.kernal_size[1]):
+                                h = i * self.stride + m
+                                w = j * self.stride + n 
+                                if 0 <= h < len(X[c][0]) and 0 <= w < len(X[c][0][0]):
+                                    dW[k][c][m][n] += dY[k][0][i][j] * X[c][0][h][w]
+        
+        dWdL = dotproduct4d(lr, dW)
+        
+        for i in range(len(dY)) :
+            for j in range(len(X)) :
+                self.kernal[i][j] = subtractList(self.kernal[i][j], dWdL[i][j])
+
+    def updateX(self, dY) :
+        
+        N, C, H, W_in = self.input_size
+        dX = [[[[0 for _ in range(W_in)] for _ in range(H)] for _ in range(C)] for _ in range(N)]
+
+        # 각 입력 채널 c에 대해
+        for c in range(C):
+            # 각 배치 n에 대해
+            for n in range(N):
+                # 각 입력 높이 h에 대해
+                for h in range(H):
+                    # 각 입력 너비 w에 대해
+                    for w in range(W_in):
+                        # 각 출력 채널 k에 대해
+                        for k in range(len(dY)):
+                            # 각 출력 높이 i와 출력 너비 j에 대해
+                            for i in range(len(dY[0][0])):
+                                for j in range(len(dY[0][0][0])):
+                                    h_in = h + i * self.stride 
+                                    w_in = w + j * self.stride 
+                                    if 0 <= h_in < self.kernal_size[0] and 0 <= w_in < self.kernal_size[1]:
+                                        dX[n][c][h][w] += dY[k][0][i][j] * self.kernal[k][c][h_in][w_in]
+        
+        return dX
+        
+    def backward (self, gradient, X, lr) :
+        self.updateW(gradient, X, lr)
+        return self.updateX(gradient)
+
     
     
 class MaxPool2d :

@@ -1,11 +1,11 @@
 from data.data_loader import dataPreprocess
 from layer import Conv2d, MaxPool2d, FCN2d, FCN1d, softmax, CrossEntropyLoss
 
-D = dataPreprocess("./data/mnist_test.txt", "./data/mnist_test.txt")
+D = dataPreprocess("./data/mnist_train.txt", "./data/mnist_test.txt")
 train_label, train_data, test_label, test_data = D.get_item()
 print('Step 1.Done Data Load...')
 
-epochs = 1000
+epochs = 100
 learning_rate = 0.0001
 
 Layer_List = []
@@ -26,6 +26,10 @@ print("Done Layer...", 7)
 print("Step 2. Done Layer Setting")
 
 Loss = CrossEntropyLoss(10)
+
+# write_data.py
+
+
 
 for epoch in range(epochs) :
     for i in range (len(train_data)) :
@@ -59,10 +63,15 @@ for epoch in range(epochs) :
         dLdX = Layer_List[5].backward(gradient, X_list[4], learning_rate) 
         dLdX = Layer_List[4].backward(dLdX, X_list[3], learning_rate) 
         dLdX = Layer_List[3].backward(dLdX) 
-        dLdX = Layer_List[4].backward(dLdX, X_list[3], learning_rate) 
-        dLdX = Layer_List[2].backward(dLdX) 
+        dLdX = Layer_List[2].backward(dLdX, X_list[1], learning_rate) 
+        dLdX = Layer_List[1].backward(dLdX) 
+        dLdX = Layer_List[2].backward(dLdX, [[img]], learning_rate) 
 
-
-
-
+        f = open('./data.txt', 'a')
+        f.write(str(loss) + '\n')
+        f.close()
+    f = open('./data.txt', 'a')
+    f.write(epoch+"learning" + '\n\n')
+    f.close()
     print("Step 3-"+str(epoch)+". Learning...")
+
