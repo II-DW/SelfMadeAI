@@ -71,6 +71,21 @@ def ln(x, terms=100):
     # 조정된 로그 값 반환
     return result + k
 
+def log(x, base, terms=100):
+    """
+    임의의 밑을 가지는 로그 함수를 계산하는 함수.
+    """
+    if x <= -1:
+        raise ValueError("양수를 입력해주세요.")
+    if base <= 0 or base == 1:
+        raise ValueError("밑은 0보다 크고 1이 아닌 값이어야 합니다.")
+    
+    # 자연 로그를 사용하여 log 계산
+    ln_x = ln(x, terms)
+    ln_base = ln(base, terms)
+    
+    return ln_x / ln_base
+
 def sqrt(x:int, tolerance:float=1e-10, max_iterations:int=1000)->float:
     """
     뉴턴-랩슨 방법을 사용하여 제곱근을 계산하는 함수입니다.

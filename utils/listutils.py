@@ -1,40 +1,31 @@
-def Matrix_Multiplication(A:list, B:list) -> list:
+def Matrix_Multiplication(A: list, B: list) -> list:
     '''
-    함수의 행렬 곱을 반환하는 함수입니다. \n
-    2차원 행렬 곱만 지원합니다. \n
+    함수의 행렬 곱을 반환하는 함수입니다.
+    2차원 행렬 곱만 지원합니다.
     입력 행렬이 행렬 곱을 할 수 있는 크기여야 합니다. ex) (a, b)와 (b, c) 크기의 행렬
 
-    A : 2차원 리스트 (크기 (a, b)) 2, 4
-    B : 2차원 리스트 (크기 (c, b)) 9, 4
+    A : 2차원 리스트 (크기 (a, b))
+    B : 2차원 리스트 (크기 (b, c))
     반환값 : 2차원 리스트 (크기 (a, c))
     '''
-
-    result = []
-
-    a = len(A)
-    b = len(A[0])
-    c = len(B)
-    b1 = len(B[0])
-
-    if b == b1 :
-        pass
-    else :
-        print("입력 행렬의 크기가 행렬곱을 하기에 적당하지 않습니다.")
-        print(a, b, b1, c)
-        return ["error"]
     
-    for i in range (a) :
-        L = []
-        for j in range (c) : # 1, 9, 9, 676
+    a = len(A) # 1
+    b = len(A[0]) # 9
+    b = len(B[0]) # 9
+    c = len(B) # 676
+
+    # 결과 행렬 초기화
+    result = zeros(c, a)
+
+    for i in range(a):
+        for j in range(c):
             s_num = 0
-            for k in range (b):
-                A[i][k]
-                B[j][k]
+            for k in range(b):
                 s_num += A[i][k] * B[j][k]
-            L.append(s_num)
-        result.append(L)
+            result[i][j] = s_num
 
     return result
+
 
 
 def subtractList (A:list, B:list) -> list :
@@ -46,13 +37,13 @@ def subtractList (A:list, B:list) -> list :
     try :
         for i in range (len(A)) :
             l = []
-            for j in range (len(B)) :
+            for j in range (len(A[0])) :
                 l.append(A[i][j] - B[i][j])
             result.append(l)
         return result
     except Exception as e :
         print("Error :", e)
-        return result
+        raise IndexError 
 
 
 def AddList (A:list, B:list) -> list :
@@ -64,13 +55,13 @@ def AddList (A:list, B:list) -> list :
     try :
         for i in range (len(A)) :
             l = []
-            for j in range (len(B)) :
+            for j in range (len(A[0])) :
                 l.append(A[i][j] + B[i][j])
             result.append(l)
         return result
     except Exception as e :
         print("Error :", e)
-        return result
+        raise IndexError
 
 def zeros (width:int, height:int) -> list :
     '''
@@ -132,7 +123,6 @@ def return_Wc(W:list, k1:int, k2:int) :
       result.append(W[i][j])
   return [result]
 
-
 def im2col (X, w, H, W, k1, k2) :
   '''
   im2col 연산 함수
@@ -142,4 +132,24 @@ def im2col (X, w, H, W, k1, k2) :
   producted_array = Matrix_Multiplication(Wc, Xc)
   return producted_array
 
-            
+def transpose2d(X:list) -> list:
+    '''
+    2차원 행렬의 전치행렬 반환
+    '''
+    W = len(X[0])
+    H = len(X)
+    result = zeros(H, W)
+    for i in range(W) :
+        for j in range (H) :
+            result[i][j] = X[j][i]
+    return result
+
+def dotproduct(scalar:float, matrix:list) -> list :
+    '''
+    행렬 x 스칼라 곱
+    '''
+    result = matrix
+    for i in range(len(matrix)) :
+        for j in range(len(matrix[0])) :
+            result[i][j] = scalar*matrix[i][j]
+    return result

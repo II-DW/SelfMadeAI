@@ -183,3 +183,37 @@ $$
 x_{n+1} = \frac{1}{2} \left( x_n + \frac{S}{x_n} \right)
 $$
 
+### Softmax + Cross Entrophy Loss층 역전파
+
+$$
+\delta = \hat{y} - y
+$$
+
+### FCN1d층 역전파
+
+#### 1. 가중치 업데이트
+
+$$
+\frac{\partial L}{\partial W} = X^T \delta
+$$
+
+#### 2. 편향 업데이트
+$$
+\frac{\partial L}{\partial B} = \delta
+$$
+
+#### 3. 입력값 업데이트
+$$
+\frac{\partial L}{\partial X} = \delta W^T
+$$
+
+### Pooling 층 역전파
+
+$$
+\frac{\partial L}{\partial X_{c, m, n}} = \begin{cases} 
+\frac{\partial L}{\partial Y_{c, i, j}} & \text{if } (m, n) = \arg\max_{(m', n') \in R(i, j)} X_{c, m', n'} \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+

@@ -1,5 +1,5 @@
-from utils.mathtool import box_muller, sqrt
-from utils.listutils import zeros, subtractList, im2col, Matrix_Multiplication, AddList
+from utils.mathtool import box_muller, sqrt, exp, log
+from utils.listutils import *
 
 class Conv2d  :
     def __init__ (self, feature, input_size:tuple, filter_size:tuple, stride) :
@@ -8,6 +8,13 @@ class Conv2d  :
         self.kernal_size = (filter_size[2], filter_size[3], filter_size[1])
         self.kernal = self.he_initialization_conv(filter_size)
         self.stride = stride
+        
+        # self.bias = []
+        # for _ in range (self.input_size[0]) : 
+        #     l = []
+        #     for _ in range (self.input_size[1]) :
+        #         l.append(zeros(self.input_size[2]-self.kernal_size[2]+1, self.input_size[2]-self.kernal_size[2]+1))
+            
     
     def he_initialization_conv(self, filter_shape):
         """
@@ -112,8 +119,33 @@ class MaxPool2d :
                 L_0_idx.append(L_1_idx)
             result.append(L_0)
             result_idx.append(L_0_idx)
+        self.max_idx_list = result_idx
+        self.size = (len(result), len(result[0]), len(result[0][0]), len(result[0][0][0]))
+        return result
+
+    def backward (self, gradient) :
+        
+        result = []
+        for _ in range(self.input_shape[0]) :
+            l = []
+            for j in range(self.input_shape[1]) :
+                l.append(zeros(self.input_shape[2], self.input_shape[3]))
+            result.append(l)
+
+        m = 0
+        i = 0
+        j = 0
+        k = 0
+        for i in range(len(self.max_idx_list)) :
+            for j in range(len(self.max_idx_list[0])) :
+                for k in range(len(self.max_idx_list[0][0])) :
+                    for m in range(len(self.max_idx_list[0][0][0])) :
+                        idx = self.max_idx_list[i][j][k][m]
+                        result[idx[0]][idx[1]][idx[2]][idx[3]] = gradient[i][j][k][m]
         
         return result
+
+            
 
 class FCN2d :
     def __init__(self, input_shape:tuple, output_shape:int) :
@@ -122,7 +154,7 @@ class FCN2d :
         self.output_size = output_shape
         self.shape = (self.input_size, output_shape)
         self.weights = self.he_initialization()
-        self.bias = zeros(self.input_size, self.output_size)
+        self.bias = zeros(self.output_size, 1)
             
     def he_initialization(self):
         """
@@ -164,13 +196,57 @@ class FCN2d :
         flattened_X = self.flatten(X)
         return AddList(Matrix_Multiplication(flattened_X, self.weights), self.bias)
     
+
+    
+    def updateW(self, gradient, X, lr) :
+        dWdL = Matrix_Multiplication(transpose2d(X), transpose2d(gradient))
+        dWdL = dotproduct(lr, dWdL)
+        
+        dWdL = transpose2d(dWdL)
+        
+        self.weights = subtractList(self.weights, dWdL)
+
+    def updateB(self, gradient, lr) :
+        self.bias = subtractList(self.bias, dotproduct(lr, gradient))
+    
+    def updateX(self, gradient, lr) :
+        dXdL = Matrix_Multiplication(gradient, transpose2d(self.weights))
+        dXdL = dotproduct(lr, dXdL)
+        return dXdL    
+    
+    def resize(self, X) :
+        result = []
+        idx = 0
+        for i in range(self.input_shape[0]) :
+            L1 = []
+            for j in range(self.input_shape[1]) :
+                L2 =[]
+                for k in range(self.input_shape[2]) :
+                    L3 = []
+                    for m in range(self.input_shape[3]) :
+                        L3.append(X[0][idx])
+                        idx +=1
+                    L2.append(L3)
+                L1.append(L2)
+            result.append(L1)
+        return result
+        
+
+
+    def backward(self, gradient, X, lr) :
+        flattened_X = self.flatten(X)
+        self.updateW(gradient, flattened_X, lr)
+        self.updateB(gradient, lr)
+        return self.resize(self.updateX(gradient, lr))
+        
+    
 class FCN1d:
     def __init__(self, input_shape:int, output_shape:int) :
         self.input_size = input_shape
         self.output_size = output_shape
         self.shape = (self.input_size, output_shape)
         self.weights = self.he_initialization()
-        self.bias = zeros(self.input_size, self.output_size)
+        self.bias = zeros(self.output_size, 1)
 
     def he_initialization(self):
         """
@@ -200,3 +276,45 @@ class FCN1d:
 
     def forward(self, X) :
         return AddList(Matrix_Multiplication(X, self.weights), self.bias)
+    
+    def updateW (self, gradient, X, lr) :
+        dWdL = Matrix_Multiplication(transpose2d(X), transpose2d(gradient)) 
+        dWdL = dotproduct(lr, dWdL)
+        self.weights = subtractList(self.weights, transpose2d(dWdL))
+
+    def updateB (self, gradient, lr) :
+        self.bias = subtractList(self.bias, dotproduct(lr, gradient))
+
+    def updateX (self, gradient) :
+        return Matrix_Multiplication(gradient, transpose2d(self.weights))
+
+    
+    def backward(self, gradient, X, lr) :
+        self.updateW(gradient, X, lr)
+        self.updateB(gradient, lr)
+        return self.updateX(gradient)
+
+class softmax :
+    def __init__ (self, input_len) :
+        self. input_len = input_len
+
+    def forward (self, X) :
+        result = zeros(1, self.input_len)
+        exp_l = [exp(X[0][i]) for i in range(self.input_len)]
+        exp_sum = sum(exp_l)
+        for n in range(self.input_len) :
+            result[n] = exp_l[n] / exp_sum
+        return result
+    
+class CrossEntropyLoss :
+    def __init__(self, num_classes:tuple) :
+        self.num_classes = num_classes
+    
+    def forward(self, X, Y) :
+        result = 0
+        for i in range (self.num_classes) :
+            result -= Y[i] * log(X[i], 10)
+        return result
+    
+    def backward(self, X, Y) :
+        return subtractList(X, Y)
